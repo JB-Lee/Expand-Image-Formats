@@ -232,33 +232,3 @@ function dispatchNewEvent(event) {
         console.error("Failed to dispatch event: Undefined target element.");
     }
 }
-
-
-/*
-// for check events change
-const allEvents = [
-    'abort', 'animationend', 'animationiteration', 'animationstart', 'beforeinput',
-    'canplay', 'canplaythrough', 'change', 'click', 'close', 'contextmenu',
-    'cuechange', 'dblclick', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover',
-    'dragstart', 'drop', 'durationchange', 'emptied', 'ended', 'error',
-    'gotpointercapture', 'input', 'invalid', 'keydown', 
-    'keypress', 'keyup', 'load', 'loadeddata', 'loadedmetadata', 'loadstart', 'lostpointercapture', 
-    'pause', 'play', 'playing', 'pointercancel',
-    'progress', 'paste',
-    'ratechange', 'reset', 'resize', 'securitypolicyviolation', 'seeked', 
-    'seeking', 'select', 'selectstart', 'stalled', 'submit', 
-    'suspend', 'timeupdate', 'toggle', 'touchcancel', 'touchend', 'touchmove', 
-    'touchstart', 'transitionend', 'volumechange', 'waiting'
-];
-
-function logEvent(event) {
-    console.log(`Event: ${event.type}`);
-    console.log(`Target: ${event.target}`);
-    console.log(event);
-}
-
-allEvents.forEach(eventType => {
-    document.addEventListener(eventType, logEvent, true);
-});
-
-*/
