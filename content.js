@@ -34,25 +34,31 @@ async function handleEvent(event) {
     const imageFiles = [];
     for (let i = 0; i < items.length; i++) {
         if (items[i].kind === 'file' && items[i].type === 'image/webp') {
-            event.preventDefault();
+            if (imageFiles.length === 0) event.preventDefault();
             const file = items[i].getAsFile();
             imageFiles.push(file);
         }
     }
 
     if (imageFiles.length > 0) {
-        await convertAndDispatch(imageFiles, event);
+        const dataTransfer = await convertDataTransfer(imageFiles);
+
+        const newEvent = createNewEvent(dataTransfer, event);
+        
+        if (newEvent){
+            dispatchNewEvent(newEvent);
+        }
     }
 }
 
 
 /**
- * Convert the given file and dispatch the new event.
+ * Convert the given file to dataTransfer.
  *
- * @param {File} file - The file to process.
- * @param {Event} event - The original event object.
+ * @param {File} files - The files to process.
+ * @returns {DataTransfer} - The DataTransfer object containing the converted files.
  */
-async function convertAndDispatch(files, event) {
+async function convertDataTransfer(files) {
     //console.log("process call:", event.type, file);
     const dataTransfer = new DataTransfer();
 
@@ -65,20 +71,18 @@ async function convertAndDispatch(files, event) {
 
         dataTransfer.items.add(pngFile);
     }
-    
-    //if (event.type === 'paste') await copyData(pngBlob);
 
-    const newEvent = (
-            (event.type === 'drop') ? 
-                createNewDropEvent(dataTransfer, event) : 
-            (event.type === 'paste') ? 
-                createNewPasteEvent(dataTransfer, event) : null
-    );
-    
-    if (newEvent){
-        dispatchNewEvent(newEvent);
+    return dataTransfer;
+}
+
+
+function createNewEvent(dataTransfer, originalEvent) {
+    if (originalEvent.type === 'drop') {
+        return createNewDropEvent(dataTransfer, originalEvent);
+    } else if (originalEvent.type === 'paste') {
+        return createNewPasteEvent(dataTransfer, originalEvent);
     }
-    
+    return null
 }
 
 
@@ -91,7 +95,6 @@ async function convertAndDispatch(files, event) {
 function readFile(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-
         reader.onload = () => resolve(reader.result);
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -108,7 +111,6 @@ function readFile(file) {
 function loadImage(dataURL) {
     return new Promise((resolve, reject) => {
         const image = new Image();
-
         image.onload = () => resolve(image);
         image.onerror = reject;
         image.src = dataURL;
@@ -123,7 +125,7 @@ function loadImage(dataURL) {
  * @returns {Promise<Blob>} The promise that resolves with the PNG blob.
  */
 function convertImage2PNGBlob(image) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const canvas = document.createElement('canvas');
         canvas.width = image.width;
         canvas.height = image.height;
@@ -141,6 +143,7 @@ function convertImage2PNGBlob(image) {
  *
  * @param {Blob} blob - The PNG blob to copy.
  */
+/* unused
 async function copyData(blob) {
     try {
         const item = new ClipboardItem({ "image/png": blob });
@@ -150,6 +153,7 @@ async function copyData(blob) {
         console.error("Copy to clipboard failed:", error);
     }
 }
+*/
 
 
 /**
@@ -158,12 +162,14 @@ async function copyData(blob) {
  * @param {File} file - The file to add to the DataTransfer object.
  * @returns {DataTransfer} The created DataTransfer object.
  */
+/* unused
 function createDataTransfer(file) {
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
 
     return dataTransfer;
 }
+*/
 
 
 /**
