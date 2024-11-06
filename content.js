@@ -5,6 +5,8 @@
 document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
+// Supported image MIME type list
+const supportedImageTypes = ['image/webp', 'image/bmp'];
 
 /**
  * Handle the occurred events.
@@ -33,12 +35,13 @@ async function handleEvent(event) {
     
     const imageFiles = [];
     for (let i = 0; i < items.length; i++) {
-        if (items[i].kind === 'file' && items[i].type === 'image/webp') {
+        if (items[i].kind === 'file' && supportedImageTypes.includes(items[i].type)) {
             if (imageFiles.length === 0) event.preventDefault();
             const file = items[i].getAsFile();
             imageFiles.push(file);
         }
     }
+    console.log(imageFiles);
 
     if (imageFiles.length > 0) {
         const dataTransfer = await convertDataTransfer(imageFiles);
@@ -67,7 +70,7 @@ async function convertDataTransfer(files) {
         const img = await loadImage(dataURL);
 
         const pngBlob = await convertImage2PNGBlob(img);
-        const pngFile = new File([pngBlob], file.name.replace(/\.webp$/, '.png'), { type: 'image/png' });
+        const pngFile = new File([pngBlob], file.name.replace(/\.\w+$/, '.png'), { type: 'image/png' });
 
         dataTransfer.items.add(pngFile);
     }
