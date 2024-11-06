@@ -41,18 +41,29 @@ async function handleEvent(event) {
     }
 
     if (imageFiles.length > 0) {
-        await convertAndDispatch(imageFiles, event);
+        const dataTransfer = await convertDataTransfer(imageFiles);
+
+        const newEvent = (
+            (event.type === 'drop') ? 
+                createNewDropEvent(dataTransfer, event) : 
+            (event.type === 'paste') ? 
+                createNewPasteEvent(dataTransfer, event) : null
+        );
+        
+        if (newEvent){
+            dispatchNewEvent(newEvent);
+        }
     }
 }
 
 
 /**
- * Convert the given file and dispatch the new event.
+ * Convert the given file to dataTransfer.
  *
- * @param {File} file - The file to process.
- * @param {Event} event - The original event object.
+ * @param {File} files - The files to process.
+ * @returns {DataTransfer} - The DataTransfer object containing the converted files.
  */
-async function convertAndDispatch(files, event) {
+async function convertDataTransfer(files) {
     //console.log("process call:", event.type, file);
     const dataTransfer = new DataTransfer();
 
@@ -65,20 +76,8 @@ async function convertAndDispatch(files, event) {
 
         dataTransfer.items.add(pngFile);
     }
-    
-    //if (event.type === 'paste') await copyData(pngBlob);
 
-    const newEvent = (
-            (event.type === 'drop') ? 
-                createNewDropEvent(dataTransfer, event) : 
-            (event.type === 'paste') ? 
-                createNewPasteEvent(dataTransfer, event) : null
-    );
-    
-    if (newEvent){
-        dispatchNewEvent(newEvent);
-    }
-    
+    return dataTransfer;
 }
 
 
