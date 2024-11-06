@@ -34,7 +34,7 @@ async function handleEvent(event) {
     const imageFiles = [];
     for (let i = 0; i < items.length; i++) {
         if (items[i].kind === 'file' && items[i].type === 'image/webp') {
-            event.preventDefault();
+            if (imageFiles.length === 0) event.preventDefault();
             const file = items[i].getAsFile();
             imageFiles.push(file);
         }
