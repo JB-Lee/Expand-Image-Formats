@@ -90,7 +90,6 @@ async function convertDataTransfer(files) {
 function readFile(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-
         reader.onload = () => resolve(reader.result);
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -107,7 +106,6 @@ function readFile(file) {
 function loadImage(dataURL) {
     return new Promise((resolve, reject) => {
         const image = new Image();
-
         image.onload = () => resolve(image);
         image.onerror = reject;
         image.src = dataURL;
@@ -122,7 +120,7 @@ function loadImage(dataURL) {
  * @returns {Promise<Blob>} The promise that resolves with the PNG blob.
  */
 function convertImage2PNGBlob(image) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const canvas = document.createElement('canvas');
         canvas.width = image.width;
         canvas.height = image.height;
@@ -140,6 +138,7 @@ function convertImage2PNGBlob(image) {
  *
  * @param {Blob} blob - The PNG blob to copy.
  */
+/* unused
 async function copyData(blob) {
     try {
         const item = new ClipboardItem({ "image/png": blob });
@@ -149,6 +148,7 @@ async function copyData(blob) {
         console.error("Copy to clipboard failed:", error);
     }
 }
+*/
 
 
 /**
@@ -157,12 +157,14 @@ async function copyData(blob) {
  * @param {File} file - The file to add to the DataTransfer object.
  * @returns {DataTransfer} The created DataTransfer object.
  */
+/* unused
 function createDataTransfer(file) {
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
 
     return dataTransfer;
 }
+*/
 
 
 /**
