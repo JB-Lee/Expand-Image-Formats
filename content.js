@@ -12,7 +12,7 @@ document.addEventListener('paste', handleEvent);
  * @param {Event} event - The event object.
  */
 async function handleEvent(event) {
-    //console.log("event occurred :", event.type, event);
+    console.log("event occurred :", event.type, event);
 
     if (event.type === 'paste' && !event.clipboardData) {
         console.error("Clipboard data is null or undefined.");
@@ -31,12 +31,17 @@ async function handleEvent(event) {
         return;
     }
     
+    const imageFiles = [];
     for (let i = 0; i < items.length; i++) {
         if (items[i].kind === 'file' && items[i].type === 'image/webp') {
             event.preventDefault();
             const file = items[i].getAsFile();
-            await convertAndDispatch(file, event);
+            imageFiles.push(file);
         }
+    }
+
+    if (imageFiles.length > 0) {
+        await convertAndDispatch(imageFiles, event);
     }
 }
 
@@ -47,19 +52,22 @@ async function handleEvent(event) {
  * @param {File} file - The file to process.
  * @param {Event} event - The original event object.
  */
-async function convertAndDispatch(file, event) {
+async function convertAndDispatch(files, event) {
     //console.log("process call:", event.type, file);
+    const dataTransfer = new DataTransfer();
 
-    const dataURL = await readFile(file);
-    const img = await loadImage(dataURL);
+    for (const file of files) {
+        const dataURL = await readFile(file);
+        const img = await loadImage(dataURL);
 
-    const pngBlob = await convertImage2PNGBlob(img);
+        const pngBlob = await convertImage2PNGBlob(img);
+        const pngFile = new File([pngBlob], file.name.replace(/\.webp$/, '.png'), { type: 'image/png' });
 
-    if (event.type === 'paste') await copyData(pngBlob);
+        dataTransfer.items.add(pngFile);
+    }
+    
+    //if (event.type === 'paste') await copyData(pngBlob);
 
-    const pngFile = new File([pngBlob], file.name.replace(/\.webp$/, '.png'), { type: 'image/png' });
-
-    const dataTransfer = createDataTransfer(pngFile);
     const newEvent = (
             (event.type === 'drop') ? 
                 createNewDropEvent(dataTransfer, event) : 
@@ -232,33 +240,3 @@ function dispatchNewEvent(event) {
         console.error("Failed to dispatch event: Undefined target element.");
     }
 }
-
-
-/*
-// for check events change
-const allEvents = [
-    'abort', 'animationend', 'animationiteration', 'animationstart', 'beforeinput',
-    'canplay', 'canplaythrough', 'change', 'click', 'close', 'contextmenu',
-    'cuechange', 'dblclick', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover',
-    'dragstart', 'drop', 'durationchange', 'emptied', 'ended', 'error',
-    'gotpointercapture', 'input', 'invalid', 'keydown', 
-    'keypress', 'keyup', 'load', 'loadeddata', 'loadedmetadata', 'loadstart', 'lostpointercapture', 
-    'pause', 'play', 'playing', 'pointercancel',
-    'progress', 'paste',
-    'ratechange', 'reset', 'resize', 'securitypolicyviolation', 'seeked', 
-    'seeking', 'select', 'selectstart', 'stalled', 'submit', 
-    'suspend', 'timeupdate', 'toggle', 'touchcancel', 'touchend', 'touchmove', 
-    'touchstart', 'transitionend', 'volumechange', 'waiting'
-];
-
-function logEvent(event) {
-    console.log(`Event: ${event.type}`);
-    console.log(`Target: ${event.target}`);
-    console.log(event);
-}
-
-allEvents.forEach(eventType => {
-    document.addEventListener(eventType, logEvent, true);
-});
-
-*/
