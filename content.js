@@ -43,12 +43,7 @@ async function handleEvent(event) {
     if (imageFiles.length > 0) {
         const dataTransfer = await convertDataTransfer(imageFiles);
 
-        const newEvent = (
-            (event.type === 'drop') ? 
-                createNewDropEvent(dataTransfer, event) : 
-            (event.type === 'paste') ? 
-                createNewPasteEvent(dataTransfer, event) : null
-        );
+        const newEvent = createNewEvent(dataTransfer, event);
         
         if (newEvent){
             dispatchNewEvent(newEvent);
@@ -78,6 +73,16 @@ async function convertDataTransfer(files) {
     }
 
     return dataTransfer;
+}
+
+
+function createNewEvent(dataTransfer, originalEvent) {
+    if (originalEvent.type === 'drop') {
+        return createNewDropEvent(dataTransfer, originalEvent);
+    } else if (originalEvent.type === 'paste') {
+        return createNewPasteEvent(dataTransfer, originalEvent);
+    }
+    return null
 }
 
 
