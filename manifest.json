@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "version": "1.1.1",
+  "version": "1.1.2",
   "name": "Expand Image Formats",
-  "description": "WIP",
+  "description": "Expand Image Formats in Google Docs / Spreadsheets / Presentation. Support Format: '.webp', '.bmp', '.svg'. Previous name: Allow WebP",
 
   "icons": {
     "16": "images/icon-16.png",
