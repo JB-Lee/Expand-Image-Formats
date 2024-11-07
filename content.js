@@ -6,7 +6,7 @@ document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
 // Supported image MIME type list
-const supportedImageTypes = ['image/webp', 'image/bmp'];
+const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml'];
 
 /**
  * Handle the occurred events.
