@@ -142,40 +142,6 @@ function convertImage2PNGBlob(image) {
 
 
 /**
- * Copy the PNG blob to the clipboard.
- *
- * @param {Blob} blob - The PNG blob to copy.
- */
-/* unused
-async function copyData(blob) {
-    try {
-        const item = new ClipboardItem({ "image/png": blob });
-        navigator.clipboard.write([item]); 
-        //console.log("copy to clipboard successful.");
-    } catch (error) {
-        console.error("Copy to clipboard failed:", error);
-    }
-}
-*/
-
-
-/**
- * Create the DataTransfer object containing the given file.
- *
- * @param {File} file - The file to add to the DataTransfer object.
- * @returns {DataTransfer} The created DataTransfer object.
- */
-/* unused
-function createDataTransfer(file) {
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-
-    return dataTransfer;
-}
-*/
-
-
-/**
  * Create the new drop event with the given DataTransfer and original event properties.
  *
  * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
