@@ -6,7 +6,7 @@ document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
 // Supported image MIME type list
-const supportedImageTypes = ['image/webp', 'image/bmp'];
+const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml'];
 
 /**
  * Handle the occurred events.
@@ -139,40 +139,6 @@ function convertImage2PNGBlob(image) {
         canvas.toBlob((blob) => resolve(blob), 'image/png');
     });
 }
-
-
-/**
- * Copy the PNG blob to the clipboard.
- *
- * @param {Blob} blob - The PNG blob to copy.
- */
-/* unused
-async function copyData(blob) {
-    try {
-        const item = new ClipboardItem({ "image/png": blob });
-        navigator.clipboard.write([item]); 
-        //console.log("copy to clipboard successful.");
-    } catch (error) {
-        console.error("Copy to clipboard failed:", error);
-    }
-}
-*/
-
-
-/**
- * Create the DataTransfer object containing the given file.
- *
- * @param {File} file - The file to add to the DataTransfer object.
- * @returns {DataTransfer} The created DataTransfer object.
- */
-/* unused
-function createDataTransfer(file) {
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-
-    return dataTransfer;
-}
-*/
 
 
 /**
