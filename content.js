@@ -13,7 +13,7 @@ const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml', 'image/
  * @param {Event} event - The drop or paste event object.
  */
 async function handleEvent(event) {
-    console.log("event occurred :", event.type, event);
+    //console.log("event occurred :", event.type, event);
 
     if (event.type === 'paste' && !event.clipboardData) {
         console.error("Clipboard data is null or undefined.");
@@ -42,7 +42,6 @@ async function handleEvent(event) {
             imageFiles.push(file);
         }
     }
-    console.log(imageFiles);
 
     if (imageFiles.length > 0) {
         const dataTransfer = await convertDataTransfer(imageFiles);
