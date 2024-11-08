@@ -1,7 +1,6 @@
 //console.log("content.js load")
 
-
-// Register event listeners
+// Register event listeners for drag-and-drop and paste events
 document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
@@ -9,9 +8,9 @@ document.addEventListener('paste', handleEvent);
 const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml', 'image/avif'];
 
 /**
- * Handle the occurred events.
+ * Handle events and filtering for supported image types.
  *
- * @param {Event} event - The event object.
+ * @param {Event} event - The drop or paste event object.
  */
 async function handleEvent(event) {
     console.log("event occurred :", event.type, event);
@@ -38,7 +37,7 @@ async function handleEvent(event) {
         if (items[i].kind === 'file' && supportedImageTypes.includes(items[i].type)) {
             if (imageFiles.length === 0) event.preventDefault();
             if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
-            
+
             const file = items[i].getAsFile();
             imageFiles.push(file);
         }
@@ -58,9 +57,10 @@ async function handleEvent(event) {
 
 
 /**
- * Convert the given file to dataTransfer.
+ * Convert the array of image files to PNG format.
+ * Then them to a DataTransfer object.
  *
- * @param {File} files - The files to process.
+ * @param {File[]} files - Array of files to process.
  * @returns {DataTransfer} - The DataTransfer object containing the converted files.
  */
 async function convertDataTransfer(files) {
@@ -81,6 +81,13 @@ async function convertDataTransfer(files) {
 }
 
 
+/**
+ * Create a new drop or paste event with the modified DataTransfer object.
+ *
+ * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
+ * @param {Event} originalEvent - The original event to copy properties from.
+ * @returns {Event | null} - A new drop or paste event, or null if event type is unsupported.
+ */
 function createNewEvent(dataTransfer, originalEvent) {
     if (originalEvent.type === 'drop') {
         return createNewDropEvent(dataTransfer, originalEvent);
@@ -92,7 +99,7 @@ function createNewEvent(dataTransfer, originalEvent) {
 
 
 /**
- * Read the file and return its data URL.
+ * Read the given file and return its data URL as a string.
  *
  * @param {File} file - The file to read.
  * @returns {Promise<string>} The promise that resolves with the data URL of the file.
@@ -108,7 +115,7 @@ function readFile(file) {
 
 
 /**
- * Load the image from the data URL.
+ * Load the image from the given data URL.
  *
  * @param {string} dataURL - The data URL of the image.
  * @returns {Promise<HTMLImageElement>} The promise that resolves with the loaded image.
@@ -148,7 +155,7 @@ function convertImage2PNGBlob(image) {
  *
  * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
  * @param {DragEvent} originalEvent - The original drop event.
- * @returns {DragEvent} The created drop event.
+ * @returns {DragEvent} The newly created drop event.
  */
 function createNewDropEvent(dataTransfer, originalEvent) {
     const newEvent = new DragEvent('drop', {
@@ -177,7 +184,7 @@ function createNewDropEvent(dataTransfer, originalEvent) {
  *
  * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
  * @param {ClipboardEvent} originalEvent - The original paste event.
- * @returns {ClipboardEvent} The created paste event.
+ * @returns {ClipboardEvent} The newly created paste event.
  */
 function createNewPasteEvent(dataTransfer, originalEvent) {
     const newEvent = new ClipboardEvent('paste', {
