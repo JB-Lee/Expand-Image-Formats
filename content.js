@@ -1,11 +1,18 @@
 //console.log("content.js load")
+console.log(libheif);
 
 // Register event listeners for drag-and-drop and paste events
 document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
 // Supported image MIME type list
-const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml', 'image/avif'];
+const supportedImageTypes = [
+    'image/webp', 
+    'image/bmp', 
+    'image/svg+xml', 
+    'image/avif',
+    'image/heif', 'image/heic'
+];
 
 /**
  * Handle events and filtering for supported image types.
@@ -13,7 +20,7 @@ const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml', 'image/
  * @param {Event} event - The drop or paste event object.
  */
 async function handleEvent(event) {
-    //console.log("event occurred :", event.type, event);
+    console.log("event occurred :", event.type, event);
 
     if (event.type === 'paste' && !event.clipboardData) {
         console.error("Clipboard data is null or undefined.");
@@ -34,23 +41,46 @@ async function handleEvent(event) {
     
     const imageFiles = [];
     for (let i = 0; i < items.length; i++) {
+        const file = items[i].getAsFile();
+        console.log(file.name, items[i].kind, items[i].type, items);
         if (items[i].kind === 'file' && supportedImageTypes.includes(items[i].type)) {
             if (imageFiles.length === 0) event.preventDefault();
             if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
 
-            const file = items[i].getAsFile();
+            imageFiles.push(file);
+
+        // MIME type didn't work for HEIF, check with file extension
+        } else if (file.name && (file.name.endsWith('.heif') || file.name.endsWith('.heic'))) {
             imageFiles.push(file);
         }
     }
 
     if (imageFiles.length > 0) {
-        const dataTransfer = await convertDataTransfer(imageFiles);
-
-        const newEvent = createNewEvent(dataTransfer, event);
-        
-        if (newEvent){
-            dispatchNewEvent(newEvent);
+        let newEvent;
+        let dataTransfer;
+        try {
+            dataTransfer = await convertDataTransfer(imageFiles);
+        } catch (error) {
+            console.error("covert datatransfer error:", error);
+            return;
         }
+
+        try {
+            newEvent = createNewEvent(dataTransfer, event);
+        } catch (error) {
+            console.error("event creation error:", error);
+            return;
+        }
+
+        if (newEvent){
+            try {
+                dispatchNewEvent(newEvent);
+            } catch (error) {
+                console.error("dispatch event error:", error);
+                return;
+            }
+        }
+        
     }
 }
 
@@ -63,14 +93,23 @@ async function handleEvent(event) {
  * @returns {DataTransfer} - The DataTransfer object containing the converted files.
  */
 async function convertDataTransfer(files) {
-    //console.log("process call:", event.type, file);
+    console.log("convert process call:", files);
     const dataTransfer = new DataTransfer();
 
     for (const file of files) {
-        const dataURL = await readFile(file);
-        const img = await loadImage(dataURL);
+        let pngBlob;
 
-        const pngBlob = await convertImage2PNGBlob(img);
+        // MIME type didn't work for HEIF
+        if (file.name && (file.name.endsWith('.heif') || file.name.endsWith('.heic'))) {
+            pngBlob = await convertHeifToPngBlob(file);
+
+        } else {
+            const dataURL = await readFile(file);
+            const img = await loadImage(dataURL);
+
+            pngBlob = await convertImage2PNGBlob(img);
+        }
+
         const pngFile = new File([pngBlob], file.name.replace(/\.\w+$/, '.png'), { type: 'image/png' });
 
         dataTransfer.items.add(pngFile);
@@ -147,6 +186,36 @@ function convertImage2PNGBlob(image) {
         canvas.toBlob((blob) => resolve(blob), 'image/png');
     });
 }
+
+
+/* didn't work - libheif load failure
+async function convertHeifToPngBlob(file) {
+    console.log("Call convertHeifToPngBlob");
+    
+    const buffer = await file.arrayBuffer();
+    const decoder = new libheif.HeifDecoder();
+    const images = decoder.decode(buffer);
+    const image = images[0];
+
+    const canvas = document.createElement('canvas');
+    canvas.width = image.get_width();
+    canvas.height = image.get_height();
+    const ctx = canvas.getContext('2d');
+
+    const imageData = ctx.createImageData(image.get_width(), image.get_height());
+    await new Promise((resolve, reject) => {
+        image.display(imageData, (displayData) => {
+            if (!displayData) {
+                return reject(new Error('HEIF processing error'));
+            }
+            resolve();
+        });
+    });
+
+    ctx.putImageData(imageData, 0, 0);
+    return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+}
+*/
 
 
 /**
