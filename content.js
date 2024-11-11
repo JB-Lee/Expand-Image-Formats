@@ -1,5 +1,4 @@
 //console.log("content.js load")
-console.log(libheif);
 
 // Register event listeners for drag-and-drop and paste events
 document.addEventListener('drop', handleEvent);
@@ -186,36 +185,6 @@ function convertImage2PNGBlob(image) {
         canvas.toBlob((blob) => resolve(blob), 'image/png');
     });
 }
-
-
-/* didn't work - libheif load failure
-async function convertHeifToPngBlob(file) {
-    console.log("Call convertHeifToPngBlob");
-    
-    const buffer = await file.arrayBuffer();
-    const decoder = new libheif.HeifDecoder();
-    const images = decoder.decode(buffer);
-    const image = images[0];
-
-    const canvas = document.createElement('canvas');
-    canvas.width = image.get_width();
-    canvas.height = image.get_height();
-    const ctx = canvas.getContext('2d');
-
-    const imageData = ctx.createImageData(image.get_width(), image.get_height());
-    await new Promise((resolve, reject) => {
-        image.display(imageData, (displayData) => {
-            if (!displayData) {
-                return reject(new Error('HEIF processing error'));
-            }
-            resolve();
-        });
-    });
-
-    ctx.putImageData(imageData, 0, 0);
-    return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-}
-*/
 
 
 /**
