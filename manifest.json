@@ -15,8 +15,12 @@
       "matches": [
         "https://docs.google.com/*"
       ],
-      "js": ["content.js"]
+      "js": ["lib/libheif-bundle.js", "content.js"]
     }
+  ],
+
+  "host_permissions": [
+    "https://docs.google.com/*"
   ],
   
   "action": {
