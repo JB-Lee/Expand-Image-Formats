@@ -9,8 +9,7 @@ const supportedImageTypes = [
     'image/webp', 
     'image/bmp', 
     'image/svg+xml', 
-    'image/avif',
-    'image/heif', 'image/heic'
+    'image/avif'
 ];
 
 /**
@@ -45,11 +44,6 @@ async function handleEvent(event) {
         if (items[i].kind === 'file' && supportedImageTypes.includes(items[i].type)) {
             if (imageFiles.length === 0) event.preventDefault();
             if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
-
-            imageFiles.push(file);
-
-        // MIME type didn't work for HEIF, check with file extension
-        } else if (file.name && (file.name.endsWith('.heif') || file.name.endsWith('.heic'))) {
             imageFiles.push(file);
         }
     }
@@ -96,18 +90,10 @@ async function convertDataTransfer(files) {
     const dataTransfer = new DataTransfer();
 
     for (const file of files) {
-        let pngBlob;
+        const dataURL = await readFile(file);
+        const img = await loadImage(dataURL);
 
-        // MIME type didn't work for HEIF
-        if (file.name && (file.name.endsWith('.heif') || file.name.endsWith('.heic'))) {
-            pngBlob = await convertHeifToPngBlob(file);
-
-        } else {
-            const dataURL = await readFile(file);
-            const img = await loadImage(dataURL);
-
-            pngBlob = await convertImage2PNGBlob(img);
-        }
+        const pngBlob = await convertImage2PNGBlob(img);
 
         const pngFile = new File([pngBlob], file.name.replace(/\.\w+$/, '.png'), { type: 'image/png' });
 
