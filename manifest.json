@@ -15,14 +15,10 @@
       "matches": [
         "https://docs.google.com/*"
       ],
-      "js": ["lib/libheif-bundle.js", "content.js"]
+      "js": "content.js"
     }
   ],
 
-  "host_permissions": [
-    "https://docs.google.com/*"
-  ],
-  
   "action": {
     "default_popup": "popup.html"
   }
