@@ -18,7 +18,6 @@ const SUPPORTED_IMAGE_TYPES = [
  * @param {Event} event - The drop or paste event object.
  */
 async function handleEvent(event) {
-    console.log("event occurred :", event.type, event);
 
     if (event.type === 'paste' && !event.clipboardData) {
         console.error("Clipboard data is null or undefined.");
@@ -90,7 +89,6 @@ function filterSupportedImages(items, event) {
  * @returns {DataTransfer} - The DataTransfer object containing the converted files.
  */
 async function convertDataTransfer(files) {
-    console.log("convert process call:", files);
     const dataTransfer = new DataTransfer();
 
     for (const file of files) {
