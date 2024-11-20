@@ -29,9 +29,8 @@ async function handleEvent(event) {
         console.error("Undefined event.");
         return;
     }
-    console.log(items);
+
     const imageFiles = filterSupportedImages(items, event);
-    console.log(imageFiles);
     if (imageFiles.length === 0) return;
 
     try {
