@@ -32,34 +32,32 @@ async function handleEvent(event) {
     }
     
     const imageFiles = filterSupportedImages(items, event);
+    if (imageFiles.length === 0) return;
 
-    if (imageFiles.length > 0) {
-        let newEvent;
-        let dataTransfer;
-        try {
-            dataTransfer = await convertDataTransfer(imageFiles);
-        } catch (error) {
-            console.error("covert datatransfer error:", error);
-            return;
-        }
-
-        try {
-            newEvent = createNewEvent(dataTransfer, event);
-        } catch (error) {
-            console.error("event creation error:", error);
-            return;
-        }
-
-        if (newEvent){
-            try {
-                dispatchNewEvent(newEvent);
-            } catch (error) {
-                console.error("dispatch event error:", error);
-                return;
-            }
-        }
-        
+    let newEvent;
+    let dataTransfer;
+    try {
+        dataTransfer = await convertDataTransfer(imageFiles);
+    } catch (error) {
+        console.error("covert datatransfer error:", error);
+        return;
     }
+
+    try {
+        newEvent = createNewEvent(dataTransfer, event);
+    } catch (error) {
+        console.error("event creation error:", error);
+        return;
+    }
+
+    if (newEvent){
+        try {
+            dispatchNewEvent(newEvent);
+        } catch (error) {
+            console.error("dispatch event error:", error);
+            return;
+        }
+    }   
 }
 
 
