@@ -5,7 +5,7 @@ document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
 // Supported image MIME type list
-const supportedImageTypes = [
+const SUPPORTED_IMAGE_TYPES = [
     'image/webp', 
     'image/bmp', 
     'image/svg+xml', 
@@ -41,7 +41,7 @@ async function handleEvent(event) {
     for (let i = 0; i < items.length; i++) {
         const file = items[i].getAsFile();
         console.log(file.name, items[i].kind, items[i].type, items);
-        if (items[i].kind === 'file' && supportedImageTypes.includes(items[i].type)) {
+        if (items[i].kind === 'file' && SUPPORTED_IMAGE_TYPES.includes(items[i].type)) {
             if (imageFiles.length === 0) event.preventDefault();
             if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
             imageFiles.push(file);
