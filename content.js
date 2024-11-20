@@ -25,14 +25,8 @@ async function handleEvent(event) {
         return;
     }
 
-    const items = (
-            (event.type === 'drop') ? 
-                event.dataTransfer.items : 
-            (event.type === 'paste') ? 
-                event.clipboardData.items : null
-    );
-
-    if (items == null) {
+    const items = getEventItems(event);
+    if (!items) {
         console.error("Undefined event.");
         return;
     }
@@ -75,6 +69,19 @@ async function handleEvent(event) {
         }
         
     }
+}
+
+
+/**
+ * Return the required DataTransferItems based on the event type
+ *
+ * @param {Event} event - The drop or paste event object.
+ * @returns {DataTransferItemList | null} - List of items, or null if unsupported event.
+ */
+function getEventItems(event) {
+    if (event.type === 'drop') return event.dataTransfer.items;
+    if (event.type === 'paste') return event.clipboardData.items;
+    return null;
 }
 
 
