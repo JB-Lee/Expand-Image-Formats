@@ -29,8 +29,9 @@ async function handleEvent(event) {
         console.error("Undefined event.");
         return;
     }
-    
+    console.log(items);
     const imageFiles = filterSupportedImages(items, event);
+    console.log(imageFiles);
     if (imageFiles.length === 0) return;
 
     try {
@@ -64,18 +65,24 @@ function getEventItems(event) {
  * @returns {File[]} - List of supported image files.
  */
 function filterSupportedImages(items, event) {
+    if (!items || typeof items !== 'object' || typeof items.length !== 'number') return [];
     const imageFiles = [];
 
-    for (let i = 0; i < items.length; i++) {
-        const file = items[i].getAsFile();
+    // #Note: 
+    // I don't know why, The AVIF format does not support Google Docs explicitly.
+    // But it works internally. Maybe they will support format someday.
+    const isGoogleDocs = window.location.href.startsWith('https://docs.google.com/document/');
+    const shouldSkipFile = (type) => type === 'image/avif' && isGoogleDocs;
 
-        if (items[i].kind === 'file' && SUPPORTED_IMAGE_TYPES.includes(items[i].type)) {
-            if (imageFiles.length === 0) event.preventDefault();
-            if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
+    Array.from(items).forEach(item => {
+        const file = item.getAsFile();
+        const { kind, type } = item;
 
+        if (kind === 'file' && SUPPORTED_IMAGE_TYPES.includes(type) && !shouldSkipFile(type)) {
             imageFiles.push(file);
         }
-    }
+    });
+    event.preventDefault();
 
     return imageFiles;
 }
