@@ -5,7 +5,12 @@ document.addEventListener('drop', handleEvent);
 document.addEventListener('paste', handleEvent);
 
 // Supported image MIME type list
-const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml', 'image/avif'];
+const SUPPORTED_IMAGE_TYPES = [
+    'image/webp', 
+    'image/bmp', 
+    'image/svg+xml', 
+    'image/avif'
+];
 
 /**
  * Handle events and filtering for supported image types.
@@ -13,45 +18,72 @@ const supportedImageTypes = ['image/webp', 'image/bmp', 'image/svg+xml', 'image/
  * @param {Event} event - The drop or paste event object.
  */
 async function handleEvent(event) {
-    //console.log("event occurred :", event.type, event);
 
     if (event.type === 'paste' && !event.clipboardData) {
         console.error("Clipboard data is null or undefined.");
         return;
     }
 
-    const items = (
-            (event.type === 'drop') ? 
-                event.dataTransfer.items : 
-            (event.type === 'paste') ? 
-                event.clipboardData.items : null
-    );
-
-    if (items == null) {
+    const items = getEventItems(event);
+    if (!items) {
         console.error("Undefined event.");
         return;
     }
-    
-    const imageFiles = [];
-    for (let i = 0; i < items.length; i++) {
-        if (items[i].kind === 'file' && supportedImageTypes.includes(items[i].type)) {
-            if (imageFiles.length === 0) event.preventDefault();
-            if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
 
-            const file = items[i].getAsFile();
+    const imageFiles = filterSupportedImages(items, event);
+    if (imageFiles.length === 0) return;
+
+    try {
+        const dataTransfer = await convertDataTransfer(imageFiles);
+        const newEvent = createNewEvent(dataTransfer, event);
+        if (newEvent) dispatchNewEvent(newEvent);
+    } catch (error) {
+        console.error("Error processing event:", error);
+    } 
+}
+
+
+/**
+ * Return the required DataTransferItems based on the event type.
+ *
+ * @param {Event} event - The drop or paste event object.
+ * @returns {DataTransferItemList | null} - List of items, or null if unsupported event.
+ */
+function getEventItems(event) {
+    if (event.type === 'drop') return event.dataTransfer.items;
+    if (event.type === 'paste') return event.clipboardData.items;
+    return null;
+}
+
+
+/**
+ * Filter supported image files from the event items.
+ *
+ * @param {DataTransferItemList} items - List of event items.
+ * @param {Event} event - The original event object.
+ * @returns {File[]} - List of supported image files.
+ */
+function filterSupportedImages(items, event) {
+    if (!items || typeof items !== 'object' || typeof items.length !== 'number') return [];
+    const imageFiles = [];
+
+    // #Note: 
+    // I don't know why, The AVIF format does not support Google Docs explicitly.
+    // But it works internally. Maybe they will support format someday.
+    const isGoogleDocs = window.location.href.startsWith('https://docs.google.com/document/');
+    const shouldSkipFile = (type) => type === 'image/avif' && isGoogleDocs;
+
+    Array.from(items).forEach(item => {
+        const file = item.getAsFile();
+        const { kind, type } = item;
+
+        if (kind === 'file' && SUPPORTED_IMAGE_TYPES.includes(type) && !shouldSkipFile(type)) {
             imageFiles.push(file);
         }
-    }
+    });
+    event.preventDefault();
 
-    if (imageFiles.length > 0) {
-        const dataTransfer = await convertDataTransfer(imageFiles);
-
-        const newEvent = createNewEvent(dataTransfer, event);
-        
-        if (newEvent){
-            dispatchNewEvent(newEvent);
-        }
-    }
+    return imageFiles;
 }
 
 
@@ -63,7 +95,6 @@ async function handleEvent(event) {
  * @returns {DataTransfer} - The DataTransfer object containing the converted files.
  */
 async function convertDataTransfer(files) {
-    //console.log("process call:", event.type, file);
     const dataTransfer = new DataTransfer();
 
     for (const file of files) {
@@ -71,6 +102,7 @@ async function convertDataTransfer(files) {
         const img = await loadImage(dataURL);
 
         const pngBlob = await convertImage2PNGBlob(img);
+
         const pngFile = new File([pngBlob], file.name.replace(/\.\w+$/, '.png'), { type: 'image/png' });
 
         dataTransfer.items.add(pngFile);
