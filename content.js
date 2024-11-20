@@ -31,16 +31,7 @@ async function handleEvent(event) {
         return;
     }
     
-    const imageFiles = [];
-    for (let i = 0; i < items.length; i++) {
-        const file = items[i].getAsFile();
-        console.log(file.name, items[i].kind, items[i].type, items);
-        if (items[i].kind === 'file' && SUPPORTED_IMAGE_TYPES.includes(items[i].type)) {
-            if (imageFiles.length === 0) event.preventDefault();
-            if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
-            imageFiles.push(file);
-        }
-    }
+    const imageFiles = filterSupportedImages(items, event);
 
     if (imageFiles.length > 0) {
         let newEvent;
@@ -73,7 +64,7 @@ async function handleEvent(event) {
 
 
 /**
- * Return the required DataTransferItems based on the event type
+ * Return the required DataTransferItems based on the event type.
  *
  * @param {Event} event - The drop or paste event object.
  * @returns {DataTransferItemList | null} - List of items, or null if unsupported event.
@@ -82,6 +73,31 @@ function getEventItems(event) {
     if (event.type === 'drop') return event.dataTransfer.items;
     if (event.type === 'paste') return event.clipboardData.items;
     return null;
+}
+
+
+/**
+ * Filter supported image files from the event items.
+ *
+ * @param {DataTransferItemList} items - List of event items.
+ * @param {Event} event - The original event object.
+ * @returns {File[]} - List of supported image files.
+ */
+function filterSupportedImages(items, event) {
+    const imageFiles = [];
+
+    for (let i = 0; i < items.length; i++) {
+        const file = items[i].getAsFile();
+
+        if (items[i].kind === 'file' && SUPPORTED_IMAGE_TYPES.includes(items[i].type)) {
+            if (imageFiles.length === 0) event.preventDefault();
+            if (items[i].type === 'image/avif' && window.location.href.startsWith('https://docs.google.com/document/')) continue;
+
+            imageFiles.push(file);
+        }
+    }
+
+    return imageFiles;
 }
 
 
