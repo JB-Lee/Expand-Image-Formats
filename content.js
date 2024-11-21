@@ -254,7 +254,7 @@ function dispatchNewEvent(event) {
  * Return the required target element based on the event type.
  *
  * @param {Event} event - The drop or paste event object.
- * @returns {DataTransferItemList | null} - List of items, or null if unsupported event.
+ * @returns {HTMLElement | null} - The target element, or null if unsupported event.
  */
 function getTargetElement(event) {
     if (event.type === 'drop') return document.elementFromPoint(event.clientX, event.clientY);
