@@ -120,11 +120,8 @@ async function convertDataTransfer(files) {
  * @returns {Event | null} - A new drop or paste event, or null if event type is unsupported.
  */
 function createNewEvent(dataTransfer, originalEvent) {
-    if (originalEvent.type === 'drop') {
-        return createNewDropEvent(dataTransfer, originalEvent);
-    } else if (originalEvent.type === 'paste') {
-        return createNewPasteEvent(dataTransfer, originalEvent);
-    }
+    if (originalEvent.type === 'drop') return createNewDropEvent(dataTransfer, originalEvent);
+    if (originalEvent.type === 'paste') return createNewPasteEvent(dataTransfer, originalEvent);
     return null
 }
 
