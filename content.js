@@ -19,6 +19,8 @@ const SUPPORTED_IMAGE_TYPES = [
  */
 async function handleEvent(event) {
 
+    if (!event.isTrusted) return;
+
     if (event.type === 'paste' && !event.clipboardData) {
         console.error("EIF [handleEvent]: Clipboard data is null or undefined.");
         return;
@@ -32,7 +34,7 @@ async function handleEvent(event) {
 
     const imageFiles = filterSupportedImages(items, event);
     if (imageFiles.length === 0) {
-        console.warn("EIF [handleEvent]: No supported image files found.");
+        //console.warn("EIF [handleEvent]: No supported image files found.");
         return;
     }
 
