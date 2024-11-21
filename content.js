@@ -90,8 +90,7 @@ function filterSupportedImages(items, event) {
         }
     });
 
-    if (imageFiles.length === 0) console.warn("EIF [filterSupportedImages]: No valid image files found.");
-    else event.preventDefault();
+    event.preventDefault();
 
     return imageFiles;
 }
