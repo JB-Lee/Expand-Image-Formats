@@ -239,16 +239,25 @@ function createNewPasteEvent(dataTransfer, originalEvent) {
  * @param {Event} event - The event to dispatch.
  */
 function dispatchNewEvent(event) {
-    const targetElement = (
-            (event.type === 'drop') ? 
-                document.elementFromPoint(event.clientX, event.clientY) :
-            (event.type === 'paste' ? 
-                document.activeElement : null
-    ));
+    const targetElement = getTargetElement(event);
 
-    if (targetElement) {
-        targetElement.dispatchEvent(event);
-    } else {
+    if (!targetElement) {
         console.error("Failed to dispatch event: Undefined target element.");
+        return;
     }
+
+    targetElement.dispatchEvent(event);
+}
+
+
+/**
+ * Return the required target element based on the event type.
+ *
+ * @param {Event} event - The drop or paste event object.
+ * @returns {DataTransferItemList | null} - List of items, or null if unsupported event.
+ */
+function getTargetElement(event) {
+    if (event.type === 'drop') return document.elementFromPoint(event.clientX, event.clientY);
+    if (event.type === 'paste') return document.activeElement;
+    return null;
 }
