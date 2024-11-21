@@ -97,16 +97,16 @@ function filterSupportedImages(items, event) {
 async function convertDataTransfer(files) {
     const dataTransfer = new DataTransfer();
 
-    for (const file of files) {
+    const processFile = async (file) => {
         const dataURL = await readFile(file);
         const img = await loadImage(dataURL);
-
         const pngBlob = await convertImage2PNGBlob(img);
-
         const pngFile = new File([pngBlob], file.name.replace(/\.\w+$/, '.png'), { type: 'image/png' });
+        return pngFile;
+    };
 
-        dataTransfer.items.add(pngFile);
-    }
+    const processedFiles = await Promise.all(files.map(processFile));
+    processedFiles.forEach((file) => dataTransfer.items.add(file));
 
     return dataTransfer;
 }
