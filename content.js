@@ -19,26 +19,32 @@ const SUPPORTED_IMAGE_TYPES = [
  */
 async function handleEvent(event) {
 
+    if (!event.isTrusted) return;
+
     if (event.type === 'paste' && !event.clipboardData) {
-        console.error("Clipboard data is null or undefined.");
+        console.error("EIF [handleEvent]: Clipboard data is null or undefined.");
         return;
     }
 
     const items = getEventItems(event);
     if (!items) {
-        console.error("Undefined event.");
+        console.error("EIF [handleEvent]: Unable to retrieve event items.");
         return;
     }
 
     const imageFiles = filterSupportedImages(items, event);
-    if (imageFiles.length === 0) return;
+    if (imageFiles.length === 0) {
+        //console.warn("EIF [handleEvent]: No supported image files found.");
+        return;
+    }
 
     try {
         const dataTransfer = await convertDataTransfer(imageFiles);
         const newEvent = createNewEvent(dataTransfer, event);
         if (newEvent) dispatchNewEvent(newEvent);
+        else console.error("EIF [handleEvent]: Failed to create a new event.");
     } catch (error) {
-        console.error("Error processing event:", error);
+        console.error("EIF [handleEvent]:", error);
     } 
 }
 
@@ -52,6 +58,7 @@ async function handleEvent(event) {
 function getEventItems(event) {
     if (event.type === 'drop') return event.dataTransfer.items;
     if (event.type === 'paste') return event.clipboardData.items;
+    console.error("EIF [getEventItems]: Unsupported event type.", event.type);
     return null;
 }
 
@@ -64,7 +71,10 @@ function getEventItems(event) {
  * @returns {File[]} - List of supported image files.
  */
 function filterSupportedImages(items, event) {
-    if (!items || typeof items !== 'object' || typeof items.length !== 'number') return [];
+    if (!items || typeof items !== 'object' || typeof items.length !== 'number') {
+        console.error("EIF [filterSupportedImages]: Invalid items structure.");
+        return [];
+    }
     const imageFiles = [];
 
     // #Note: 
@@ -81,6 +91,7 @@ function filterSupportedImages(items, event) {
             imageFiles.push(file);
         }
     });
+
     event.preventDefault();
 
     return imageFiles;
@@ -97,16 +108,16 @@ function filterSupportedImages(items, event) {
 async function convertDataTransfer(files) {
     const dataTransfer = new DataTransfer();
 
-    for (const file of files) {
+    const processFile = async (file) => {
         const dataURL = await readFile(file);
         const img = await loadImage(dataURL);
-
         const pngBlob = await convertImage2PNGBlob(img);
-
         const pngFile = new File([pngBlob], file.name.replace(/\.\w+$/, '.png'), { type: 'image/png' });
+        return pngFile;
+    };
 
-        dataTransfer.items.add(pngFile);
-    }
+    const processedFiles = await Promise.all(files.map(processFile));
+    processedFiles.forEach((file) => dataTransfer.items.add(file));
 
     return dataTransfer;
 }
@@ -120,11 +131,9 @@ async function convertDataTransfer(files) {
  * @returns {Event | null} - A new drop or paste event, or null if event type is unsupported.
  */
 function createNewEvent(dataTransfer, originalEvent) {
-    if (originalEvent.type === 'drop') {
-        return createNewDropEvent(dataTransfer, originalEvent);
-    } else if (originalEvent.type === 'paste') {
-        return createNewPasteEvent(dataTransfer, originalEvent);
-    }
+    if (originalEvent.type === 'drop') return createNewDropEvent(dataTransfer, originalEvent);
+    if (originalEvent.type === 'paste') return createNewPasteEvent(dataTransfer, originalEvent);
+    console.error("EIF [createNewEvent]: Unsupported event type.", originalEvent.type);
     return null
 }
 
@@ -242,16 +251,26 @@ function createNewPasteEvent(dataTransfer, originalEvent) {
  * @param {Event} event - The event to dispatch.
  */
 function dispatchNewEvent(event) {
-    const targetElement = (
-            (event.type === 'drop') ? 
-                document.elementFromPoint(event.clientX, event.clientY) :
-            (event.type === 'paste' ? 
-                document.activeElement : null
-    ));
+    const targetElement = getTargetElement(event);
 
-    if (targetElement) {
-        targetElement.dispatchEvent(event);
-    } else {
-        console.error("Failed to dispatch event: Undefined target element.");
+    if (!targetElement) {
+        console.error("EIF [dispatchNewEvent]: Target element is undefined.");
+        return;
     }
+
+    targetElement.dispatchEvent(event);
+}
+
+
+/**
+ * Return the required target element based on the event type.
+ *
+ * @param {Event} event - The drop or paste event object.
+ * @returns {HTMLElement | null} - The target element, or null if unsupported event.
+ */
+function getTargetElement(event) {
+    if (event.type === 'drop') return document.elementFromPoint(event.clientX, event.clientY);
+    if (event.type === 'paste') return document.activeElement;
+    console.error("EIF [getTargetElement]: Unsupported event type.", event.type);
+    return null;
 }
