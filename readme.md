@@ -49,10 +49,9 @@ Currently, images are converted to **PNG** format for the following reasons:
 4. A new insertion event is generated using the converted image data, mimicking the original event’s position and target.  
 5. The new event is triggered, inserting the converted image seamlessly.
 
-
-## Notes on SVG  
-While SVG is supported, the process rasterizes the vector image. This means the inserted SVG image will no longer behave as a scalable vector but as a rasterized image, potentially causing pixelation or quality loss when resized.  
-Currently, the logic converts SVG images to a minimum size, which may result in smaller images than intended. I am actively exploring solutions to address this issue.
+> **Note:**  
+> While SVG is supported, the process rasterizes the vector image. This means the inserted SVG image will no longer behave as a scalable vector but as a rasterized image, potentially causing pixelation or quality loss when resized.  
+> Currently, the logic converts SVG images to a minimum size, which may result in smaller images than intended. I am actively exploring solutions to address this issue.
 
 
 ## Privacy Policy  
