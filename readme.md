@@ -19,8 +19,11 @@ Simply drag and drop the file onto your document or slide to insert it.
 ### Google Sheets  
 Copy the file(e.g., `Ctrl + C`), click a cell, and paste it(e.g., `Ctrl + V`).
 
-> **Note:**  
-> Uploading images via the **Insert** tab is not supported due to technical limitations. While this may feel unintuitive or inconvenient, it is currently the most effective method available. Thank you for your understanding.
+> **Note1:**  
+> Uploading images via the **Insert tab is not supported** due to technical limitations. While this may feel unintuitive or inconvenient, it is currently the most effective method available. Thank you for your understanding.  
+
+> **Note2:**
+> This extension is designed with the intention of supporting multiple file insertions at once. However, it does not currently work as expected with **Google Sheets**. Unfortunately, you will need to **copy and paste files one at a time**. I am actively exploring various solutions to address this issue.
 
 
 ## Installation

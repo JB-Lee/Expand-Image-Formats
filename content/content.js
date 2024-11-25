@@ -40,9 +40,7 @@ async function handleEvent(event) {
 
     try {
         const dataTransfer = await convertDataTransfer(imageFiles);
-        const newEvent = createNewEvent(dataTransfer, event);
-        if (newEvent) dispatchNewEvent(newEvent);
-        else console.error("EIF [handleEvent]: Failed to create a new event.");
+        triggerEvent(dataTransfer, event);
     } catch (error) {
         console.error("EIF [handleEvent]:", error);
     } 
@@ -98,6 +96,13 @@ function filterSupportedImages(items, event) {
 }
 
 
+
+
+
+/**
+ * Image Date Processing Code.
+ */
+
 /**
  * Convert the array of image files to PNG format.
  * Then them to a DataTransfer object.
@@ -120,21 +125,6 @@ async function convertDataTransfer(files) {
     processedFiles.forEach((file) => dataTransfer.items.add(file));
 
     return dataTransfer;
-}
-
-
-/**
- * Create a new drop or paste event with the modified DataTransfer object.
- *
- * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
- * @param {Event} originalEvent - The original event to copy properties from.
- * @returns {Event | null} - A new drop or paste event, or null if event type is unsupported.
- */
-function createNewEvent(dataTransfer, originalEvent) {
-    if (originalEvent.type === 'drop') return createNewDropEvent(dataTransfer, originalEvent);
-    if (originalEvent.type === 'paste') return createNewPasteEvent(dataTransfer, originalEvent);
-    console.error("EIF [createNewEvent]: Unsupported event type.", originalEvent.type);
-    return null
 }
 
 
@@ -187,6 +177,41 @@ function convertImage2PNGBlob(image) {
 
         canvas.toBlob((blob) => resolve(blob), 'image/png');
     });
+}
+
+
+
+
+
+/**
+ * Custom Event Processing Code.
+ */
+
+/**
+ * Create a new custom event and dispatch it.
+ *
+ * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
+ * @param {Event} originalEvent - The original event to copy properties from.
+ */
+function triggerEvent(dataTransfer, originalEvent) {
+    const newEvent = createNewEvent(dataTransfer, originalEvent);
+    if (newEvent) dispatchNewEvent(newEvent);
+    else console.error("EIF [triggerEvent]: Failed to create a new event.");
+}
+
+
+/**
+ * Create a new drop or paste event with the modified DataTransfer object.
+ *
+ * @param {DataTransfer} dataTransfer - The DataTransfer object to attach to the new event.
+ * @param {Event} originalEvent - The original event to copy properties from.
+ * @returns {Event | null} - A new drop or paste event, or null if event type is unsupported.
+ */
+function createNewEvent(dataTransfer, originalEvent) {
+    if (originalEvent.type === 'drop') return createNewDropEvent(dataTransfer, originalEvent);
+    if (originalEvent.type === 'paste') return createNewPasteEvent(dataTransfer, originalEvent);
+    console.error("EIF [createNewEvent]: Unsupported event type.", originalEvent.type);
+    return null
 }
 
 
