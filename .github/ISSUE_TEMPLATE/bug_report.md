@@ -1,8 +1,8 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: 'Fix: '
+labels: 'bug'
 assignees: ''
 
 ---
@@ -27,6 +27,6 @@ If applicable, add screenshots to help explain your problem.
 Add any other context about the problem here.
 
 ## **Environment**
-OS: Windows 10
-Browser: Chrome
-Expand Image Formats version: 2.0.3
+OS: Windows 10  
+Browser: Chrome  
+Expand Image Formats version: 2.0.3  
